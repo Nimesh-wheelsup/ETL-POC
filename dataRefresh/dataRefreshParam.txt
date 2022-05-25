@@ -1,0 +1,8 @@
+jdbc:sqlserver://avianis.secondary.database.windows.net; databaseName=AvianisApp_WheelsUp2; user=mountainbi; password=N7pBQhb6*X_fzMpB;
+jdbc:mysql://datascienceoptimizerdb.eastus.azurecontainer.io:3306/gama?serverTimezone=UTC
+DevUser1NP
+D*v!wdNp
+-3
+30
+-7
+100
