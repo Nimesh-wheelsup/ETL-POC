@@ -79,8 +79,7 @@ public class DataRefresh {
 
         // Start data refresh
         Instant startTotal = Instant.now();
-        Test test = new Test();
-        /*AiropsMovement airopsMovement= new AiropsMovement();
+        AiropsMovement airopsMovement= new AiropsMovement();
         Flight flight = new Flight();
 
         Reservation reservation = new Reservation();
@@ -89,10 +88,9 @@ public class DataRefresh {
         AiropsCrewDuty airopsCrewDuty = new AiropsCrewDuty();
         AiropsCrewDutyMovement airopsCrewDutyMovement = new AiropsCrewDutyMovement();
         Crewdutydate crewdutydate = new Crewdutydate();
-        Flightcrew flightcrew = new Flightcrew();*/
+        Flightcrew flightcrew = new Flightcrew();
 
-        test.Refresh();
-        /*airopsMovement.Refresh();
+        airopsMovement.Refresh();
         flight.Refresh();
         reservation.Refresh();
         flightcrew.Refresh();
@@ -105,7 +103,7 @@ public class DataRefresh {
         }
 
         airopsMxEvents.Refresh(); // need to be after airopsCrewDutyOrig.refresh to get no crew events
-*/
+
         Instant endTotal = Instant.now();
 
         System.out.println("Total elasped time: " + Duration.between(startTotal, endTotal).toSeconds() + " seconds.");

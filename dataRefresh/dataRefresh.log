@@ -1,13 +1,55 @@
-com.microsoft.sqlserver.jdbc.SQLServerException: The TCP/IP connection to the host localhost, port 1433 has failed. Error: "Connection refused. Verify the connection properties. Make sure that an instance of SQL Server is running on the host and accepting TCP/IP connections at the port. Make sure that TCP connections to the port are not blocked by a firewall.".
-	at com.microsoft.sqlserver.jdbc.SQLServerException.makeFromDriverError(SQLServerException.java:237)
-	at com.microsoft.sqlserver.jdbc.SQLServerException.ConvertConnectExceptionToSQLServerException(SQLServerException.java:288)
-	at com.microsoft.sqlserver.jdbc.SocketFinder.findSocket(IOBuffer.java:2720)
-	at com.microsoft.sqlserver.jdbc.TDSChannel.open(IOBuffer.java:761)
-	at com.microsoft.sqlserver.jdbc.SQLServerConnection.connectHelper(SQLServerConnection.java:3180)
-	at com.microsoft.sqlserver.jdbc.SQLServerConnection.login(SQLServerConnection.java:2833)
-	at com.microsoft.sqlserver.jdbc.SQLServerConnection.connectInternal(SQLServerConnection.java:2671)
-	at com.microsoft.sqlserver.jdbc.SQLServerConnection.connect(SQLServerConnection.java:1640)
-	at com.microsoft.sqlserver.jdbc.SQLServerDriver.connect(SQLServerDriver.java:936)
-	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:681)
-	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:252)
-	at dataRefreshPackage.DataRefresh.main(DataRefresh.java:52)
+Wed May 25 18:28:37 UTC 2022 Hourly Data Refresh started
+
+Refresh data between 2022-05-22 and 2022-06-24
+
+........... AiropsMovement ...........
+
+
+ClientSQL:
+SELECT DISTINCT
+    [FlightLegId] as airopsmovementId
+    ,case when [IsEmptyLeg] = 1 or [TripType] = 'Repo Leg' then null else [FlightLegId] end as atlasFlightId
+    ,[TripNumber] as airopsId
+    ,[LegNumber] as legNumber
+    ,apf.[ID] fromAirportId
+    ,apt.[ID] toAirportId
+    ,[Departure] fromAirport
+    ,[Arrival] toAirport
+    ,[ScheduledOutDateUTC] as scheduledDepartureDateTimeUTC
+    ,[ScheduledOutDateUTC] + [DepartureDate]-[DepartureDateUTC] as scheduledDepartureDateTimeLoc
+    ,[ScheduledInDateUTC] as scheduledArrivalDateTimeUTC
+    ,[ScheduledInDateUTC] + [ArrivalDate]-[ArrivalDateUTC] as scheduledArrivalDateTimeLocal
+    ,[ScheduledDepartureDateUTC] as scheduledTakeOffDateTimeUTC
+    ,[ScheduledDepartureDateUTC] + [DepartureDate]-[DepartureDateUTC] as scheduledTakeOffDateTimeLocal
+    ,[ScheduledArrivalDateUTC] as scheduledLandingDateTimeUTC
+    ,[ScheduledArrivalDateUTC] + [ArrivalDate]-[ArrivalDateUTC] as scheduledLandingDateTimeLocal
+    ,DATEDIFF(minute,[ScheduledOutDateUTC], [ScheduledInDateUTC]) scheduledBlockTime
+    ,DATEDIFF(minute,[ScheduledDepartureDateUTC], [ScheduledArrivalDateUTC]) scheduledFlyingTime
+    ,[AircraftType] as aircraftType
+    ,f.[TailNumber] as aircraftRegistration
+    ,[OutBlocksUTC] as actualDepartureDateTimeUTC
+    ,[InBlocksUTC] as actualArrivalDateTimeUTC
+    ,[ActualDepartureDateUTC] as actualTakeOffDateTimeUTC
+    ,[ActualArrivalDateUTC] as actualLandingDateTimeUTC
+    ,[OutBlocksUTC] + [DepartureDate]-[DepartureDateUTC] as actualDepartureDateTimeLocal
+    ,[InBlocksUTC]  + [ArrivalDate]-[ArrivalDateUTC] as actualArrivalDateTimeLocal
+    ,[ActualDepartureDateLocal] as actualTakeOffDateTimeLocal
+    ,[ActualArrivalDateLocal] as actualLandingDateTimeLocal
+    ,DATEDIFF(minute,[OutBlocksUTC], [InBlocksUTC]) actualBlockTime
+    ,DATEDIFF(minute,[ActualDepartureDateUTC], [ActualArrivalDateUTC]) actualFlyingTime
+    ,[IsEmptyLeg] as deadHead
+    ,[TripType] as legType
+    ,[Customer] as requesterName
+    ,[Pax Count] as paxCount
+    ,[FlightLegGuidID] as FlightLegGuidID
+    ,[Created] as bookedDateTime
+    ,[RowVersion] as rowversion
+FROM [bi].[FlightDataAnalysis] f
+LEFT JOIN [bi].[AircraftAnalysis] a on f.[TailNumber] = a.[TailNumber]
+LEFT JOIN [dbo].[OperatorCertificate] o on a.[OperatorCertificateID] = o.[GuidID]
+LEFT JOIN [dbo].[Airport] apf on f.[DepartureAirportID] = apf.[DirectoryGuidID] and apf.active = 1
+LEFT JOIN [dbo].[Airport] apt on f.[ArrivalAirportID] = apt.[DirectoryGuidID] and apt.active = 1
+WHERE f.[LegStatus] <> 'Cancelled' -- exclude Cancelled
+AND (o.[Name] = 'Gama Aviation LLC' or Upper(f.[TailNumber]) like 'GAMA%' or Upper(f.[TailNumber]) like '1P - BDR%')
+AND [ArrivalDateUTC] >= '2022-05-22' 
+AND [DepartureDateUTC] <= '2022-06-24';

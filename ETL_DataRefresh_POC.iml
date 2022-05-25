@@ -13,8 +13,5 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="mssql-jdbc-10.2.1.jre17" level="project" />
     <orderEntry type="library" name="mysql-connector-java-8.0.27" level="project" />
-    <orderEntry type="library" name="Maven: com.microsoft.sqlserver:mssql-jdbc:10.2.1.jre17" level="project" />
-    <orderEntry type="library" name="Maven: mysql:mysql-connector-java:8.0.29" level="project" />
-    <orderEntry type="library" name="Maven: com.google.protobuf:protobuf-java:3.19.4" level="project" />
   </component>
 </module>
